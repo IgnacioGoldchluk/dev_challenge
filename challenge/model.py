@@ -5,6 +5,10 @@ import xgboost as xgb
 from . import preprocess_utils
 
 
+class ModelContainer:
+    model = None
+
+
 class DelayModel:
     def __init__(self):
         self._model: xgb.XGBClassifier | None = None
@@ -41,12 +45,13 @@ class DelayModel:
             or
             pd.DataFrame: features.
         """
-        data["period_day"] = data["Fecha-I"].apply(preprocess_utils.get_period_day)
-        data["high_season"] = data["Fecha-I"].apply(preprocess_utils.is_high_season)
-        data["min_diff"] = data.apply(preprocess_utils.get_min_diff, axis=1)
-
-        threshold_in_minutes = 15
-        data["delay"] = np.where(data["min_diff"] > threshold_in_minutes, 1, 0)
+        if "Fecha-I" in data.columns:
+            # Preprocess for training
+            data["period_day"] = data["Fecha-I"].apply(preprocess_utils.get_period_day)
+            data["high_season"] = data["Fecha-I"].apply(preprocess_utils.is_high_season)
+            data["min_diff"] = data.apply(preprocess_utils.get_min_diff, axis=1)
+            threshold_in_minutes = 15
+            data["delay"] = np.where(data["min_diff"] > threshold_in_minutes, 1, 0)
 
         features = pd.concat(
             [
@@ -56,6 +61,11 @@ class DelayModel:
             ],
             axis=1,
         )
+
+        # Fill the reqruired columsn that might not exist with empty values
+        for col in self._top_10_features:
+            features[col] = features.get(col, 0)
+
         if target_column is None:
             return features[self._top_10_features]
         else:
@@ -95,3 +105,26 @@ class DelayModel:
             raise Exception("Cannot predict on uninitialized model")
 
         return self._model.predict(features[self._top_10_features]).tolist()
+
+    def preprocess_and_predict(self, features: pd.DataFrame) -> list[int]:
+        features = self.preprocess(features)
+        return self.predict(features)
+
+
+def predict(features: pd.DataFrame) -> list[int]:
+    if ModelContainer.model is None:
+        ModelContainer.model = initialize_model()
+
+    return ModelContainer.model.preprocess_and_predict(features)
+
+
+def initialize_model() -> DelayModel:
+    DATA_PATH = "data/data.csv"
+    data = pd.read_csv(DATA_PATH)
+
+    model = DelayModel()
+
+    features, target = model.preprocess(data=data, target_column="delay")
+    model.fit(features=features, target=target)
+
+    return model
