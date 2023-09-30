@@ -2,10 +2,11 @@ import fastapi
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from fastapi import status
-from .model import predict
+from .model import predict, instantiate_model
 from .payloads import Flights
 
 app = fastapi.FastAPI()
+instantiate_model()
 
 
 @app.exception_handler(RequestValidationError)

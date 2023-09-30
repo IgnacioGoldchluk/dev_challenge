@@ -111,6 +111,10 @@ class DelayModel:
         return self.predict(features)
 
 
+def instantiate_model():
+    ModelContainer.model = initialize_model()
+
+
 def predict(features: pd.DataFrame) -> list[int]:
     if ModelContainer.model is None:
         ModelContainer.model = initialize_model()
