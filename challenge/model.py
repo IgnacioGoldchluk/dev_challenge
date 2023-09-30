@@ -30,6 +30,10 @@ class DelayModel:
             random_state=1, learning_rate=0.01, scale_pos_weight=scale
         )
 
+    def load_model(self, model_path):
+        self._model = xgb.XGBClassifier()
+        self._model.load_model(model_path)
+
     def preprocess(
         self, data: pd.DataFrame, target_column: str | None = None
     ) -> tuple[pd.DataFrame, pd.DataFrame] | pd.DataFrame:
@@ -123,12 +127,7 @@ def predict(features: pd.DataFrame) -> list[int]:
 
 
 def initialize_model() -> DelayModel:
-    DATA_PATH = "data/data.csv"
-    data = pd.read_csv(DATA_PATH)
-
     model = DelayModel()
-
-    features, target = model.preprocess(data=data, target_column="delay")
-    model.fit(features=features, target=target)
+    model.load_model("challenge/xgb_model.json")
 
     return model
