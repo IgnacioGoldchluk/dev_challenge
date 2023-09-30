@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.utils import shuffle
 import xgboost as xgb
 from . import preprocess_utils
 
@@ -95,4 +94,4 @@ class DelayModel:
         if self._model is None:
             raise Exception("Cannot predict on uninitialized model")
 
-        self._model.predict(features)
+        return self._model.predict(features[self._top_10_features]).tolist()

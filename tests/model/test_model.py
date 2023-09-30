@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 import pandas as pd
 
 from sklearn.metrics import classification_report
@@ -67,6 +68,11 @@ class TestModel(unittest.TestCase):
 
     def test_model_predict(self):
         features = self.model.preprocess(data=self.data)
+
+        threshold_in_minutes = 15
+        target = pd.DataFrame()
+        target["delay"] = np.where(self.data["min_diff"] > threshold_in_minutes, 1, 0)
+        self.model.fit(features=features, target=target)
 
         predicted_targets = self.model.predict(features=features)
 
