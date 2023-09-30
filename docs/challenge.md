@@ -7,7 +7,7 @@ The predict test had to be modified because it attempted to make a prediction be
 ## API and general design
 
 ### Model
-- The real model is behind `DelayModel`. Additionally, `DelayModel` is behind a module singleton `ModelContainer` and it is eagerly initialized, as soon as the app starts the model is trained via `initialize_model()` function and ready to predict results.
+- The real model is behind `DelayModel`. Additionally, `DelayModel` is behind a module singleton `ModelContainer` and the classifier model is loaded once from the saved parameters in `xgb_model.json` as soon as the API starts.
 - Instead of exposing `DelayModel` or `ModelContainer` a single `predict()` function is exposed at the module level to simplify the module API.-
 - A `DelayModel.preprocess_and_predict()` method is exposed to simplify the usage of `DelayModel`, otherwise the user would have to remember to always call `preprocess()` before calling `predict()`
 
