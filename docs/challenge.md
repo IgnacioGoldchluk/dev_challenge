@@ -24,3 +24,8 @@ The predict test had to be modified because it attempted to make a prediction be
 - **NOTE**: While the free tier can run the model with an acceptable response time, the CPU provided for training is low and therefore it may take up to 5 minutes from deployment to readiness status.
 - The CI flow runs both `model-test` and `api-test`
 - The CD flow consists of a single call to [Render Deploy Hook](https://render.com/docs/deploy-hooks). The hook URL is stored as a secret in this repository.
+
+## GitFlow
+- There are no gitflow practices. The code is pushed directly to main and it gets deployed automatically regardless of the tests results. I didn't have time to set proper Git work flows
+- The "Deployment" should be triggered only if the "Build" action succeeded.
+- No pushes should be made directly to `main` branch. Instead, one would create PRs, run tests and only if they pass (and after a code review) the changes would be merged to `main`.
