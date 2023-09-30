@@ -22,6 +22,11 @@ class DelayModel:
             "OPERA_Copa Air",
         ]
 
+    def __init_model(self, scale):
+        self._model = xgb.XGBClassifier(
+            random_state=1, learning_rate=0.01, scale_pos_weight=scale
+        )
+
     def preprocess(
         self, data: pd.DataFrame, target_column: str | None = None
     ) -> tuple[pd.DataFrame, pd.DataFrame] | pd.DataFrame:
@@ -65,7 +70,17 @@ class DelayModel:
             features (pd.DataFrame): preprocessed data.
             target (pd.DataFrame): target.
         """
-        pass
+        target = target.iloc[:, 0]
+        x_train, _, y_train, _ = train_test_split(
+            features[self._top_10_features], target, test_size=0.33, random_state=42
+        )
+
+        n_y0 = len(y_train[y_train == 0])
+        n_y1 = len(y_train[y_train == 1])
+        scale = n_y0 / n_y1
+
+        self.__init_model(scale)
+        self._model.fit(x_train, y_train)
 
     def predict(self, features: pd.DataFrame) -> list[int]:
         """
